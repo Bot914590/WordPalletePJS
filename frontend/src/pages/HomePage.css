@@ -1,0 +1,125 @@
+/* HomePage.css */
+
+.content-slider {
+  display: flex;
+  width: 100%;
+  min-height: 400px; /* подстрой под свой макет */
+  position: relative;
+  overflow: hidden;
+}
+
+.features-panel,
+.game-panel {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 20px;
+  transition: transform 0.5s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+/* Состояния для левой панели */
+.features-panel.slide-in-left {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.features-panel.slide-out-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* Состояния для правой панели */
+.game-panel.slide-in-right {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.game-panel.slide-out-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Убедимся, что изначально всё на месте */
+.features-panel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.game-panel {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* HomePage.css */
+
+.homepage-content {
+    padding-top: 1rem;
+}
+
+.view-switcher {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.view-switcher button {
+    flex: 1;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.view-switcher button.active {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: var(--shadow-hover);
+}
+
+.view-switcher button:not(.active):hover {
+    background-color: var(--background-blue);
+}
+
+.page-section {
+    margin-top: 2rem;
+}
+
+/* HomePage.css */
+
+.homepage-welcome-section {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.homepage-welcome-section h1 {
+    font-size: 2.5rem;
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+}
+
+.homepage-welcome-section p {
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.homepage-welcome-section a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.homepage-welcome-section a:hover {
+    text-decoration: underline;
+}

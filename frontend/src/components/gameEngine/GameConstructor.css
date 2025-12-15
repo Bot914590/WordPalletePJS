@@ -1,0 +1,158 @@
+/* GameConstructor.css */
+
+.game-constructor-container {
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.game-constructor-container h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-blue);
+}
+
+.game-constructor-subtitle {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.game-type-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.game-type-placeholder {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-light);
+    background-color: var(--background-blue);
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+    margin-top: 2rem;
+}
+
+.game-type-placeholder h3 {
+    color: var(--primary-blue);
+    margin-bottom: 1rem;
+}
+
+/* Wheel Game Designer */
+.wheel-game-designer {
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.game-designer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.input-group {
+    display: flex;
+}
+
+.input-group input {
+    flex-grow: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: -1px; /* Для слияния бордеров */
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.wheel-display {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    height: 400px; /* Фиксированная высота для центрирования колеса */
+}
+
+.wheel-display svg {
+    display: block;
+    /* Центрируем колесо визуально */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* WordWheel SVG стили */
+.wheel-display svg path {
+    stroke: rgba(255, 255, 255, 0.5); /* Белая обводка между секторами */
+    stroke-width: 1px;
+}
+
+.wheel-display svg text {
+    font-family: 'Arial', sans-serif; /* Более читабельный шрифт */
+    font-weight: bold;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .game-constructor-container {
+        padding: 1rem;
+    }
+
+    .game-type-selector {
+        flex-direction: column;
+    }
+
+    .game-type-selector .btn {
+        width: 100%;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .input-group input, .input-group .btn {
+        border-radius: 4px !important;
+        margin: 0;
+        width: 100%;
+    }
+
+    .input-group input {
+        margin-bottom: 0.5rem;
+    }
+
+    .game-designer-controls {
+        max-width: 100%;
+    }
+
+    .wheel-display {
+        height: 300px;
+    }
+
+    .wheel-display svg {
+        width: 300px;
+        height: 300px;
+    }
+}

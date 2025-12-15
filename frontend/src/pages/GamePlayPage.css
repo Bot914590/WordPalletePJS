@@ -1,0 +1,300 @@
+/* GamePlayPage.css */
+
+.game-play-page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--header-height, 70px)); /* Учитываем высоту хедера */
+    background-color: var(--background-blue);
+    padding: 1rem;
+}
+
+.game-play-loading,
+.game-play-error {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+}
+
+.wheel-play-area {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+    padding: 2rem;
+    text-align: center;
+    max-width: 900px;
+    width: 100%;
+    margin: auto;
+}
+
+.wheel-play-area h1 {
+    color: var(--primary-blue);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.wheel-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.wheel-controls .checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.wheel-controls .checkbox-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-blue);
+}
+
+.wheel-controls .btn {
+    padding: 0.8rem 2.5rem;
+    font-size: 1.1rem;
+    min-width: 200px;
+}
+
+.wheel-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.wheel-display svg {
+    display: block;
+    /* Центрируем колесо визуально */
+    position: relative;
+}
+
+.wheel-display svg path {
+    stroke: rgba(255, 255, 255, 0.7); /* Белая обводка между секторами */
+    stroke-width: 1px;
+}
+
+.wheel-display svg text {
+    font-family: 'Arial', sans-serif; /* Более читабельный шрифт */
+    font-weight: bold;
+    fill: var(--text-dark); /* Цвет текста */
+}
+
+.wheel-result {
+    margin-top: 2rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+}
+
+/* Placeholder для других типов игр */
+.game-play-placeholder {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+@media (max-width: 768px) {
+    .wheel-play-area h1 {
+        font-size: 2rem;
+    }
+    .wheel-controls .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    .wheel-display svg {
+        width: 90vw; /* Занимает 90% ширины viewport */
+        height: 90vw;
+    }
+}
+
+/* GamePlayPage.css */
+
+/* Общий контейнер, который будет занимать весь экран (для полноэкранного режима) */
+.game-play-fullscreen {
+    position: fixed; /* Занимает весь viewport */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-blue); /* Цвет фона для игры */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000; /* Чтобы быть поверх других элементов */
+    overflow: auto; /* Если контент не помещается */
+}
+
+.game-play-loading,
+.game-play-error,
+.game-play-empty {
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    text-align: center;
+}
+
+.exit-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-blue); /* Новый цвет для кнопки */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.exit-btn:hover {
+    background-color: var(--dark-blue);
+}
+
+.wheel-play-area {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-hover);
+    padding: 2rem;
+    text-align: center;
+    max-width: 900px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.wheel-play-area h1 {
+    color: var(--primary-blue);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.wheel-game-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem; /* Добавим padding */
+    border-radius: 8px; /* Немного скруглим */
+    background-color: var(--background-blue); /* Фон для контролов */
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    white-space: nowrap; /* Не переносить текст */
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-blue);
+}
+
+.wheel-game-controls .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    min-width: 150px; /* Уменьшим минимальную ширину кнопок */
+}
+
+.wheel-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin: 2rem 0;
+    /* Добавим минимальные размеры для колеса */
+    min-width: 280px;
+    min-height: 280px;
+}
+
+.wheel-display svg {
+    display: block;
+    position: relative;
+    border-radius: 50%; /* Чтобы убедиться, что SVG круглое */
+    box-shadow: var(--shadow-hover); /* Тень для колеса */
+}
+
+.wheel-display svg path {
+    stroke: rgba(255, 255, 255, 0.7);
+    stroke-width: 1px;
+}
+
+.wheel-display svg text {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    fill: var(--text-dark);
+}
+
+.wheel-result {
+    margin-top: 2rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    background-color: var(--background-blue);
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+/* Placeholder для других типов игр */
+.game-play-placeholder {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+@media (max-width: 768px) {
+    .wheel-play-area h1 {
+        font-size: 2rem;
+    }
+    .wheel-game-controls {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    .wheel-game-controls .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    .wheel-display svg {
+        width: 80vw; /* Занимает 80% ширины viewport */
+        height: 80vw;
+    }
+    .exit-btn {
+        top: 0.5rem;
+        left: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,46 @@
+/* MyActivitiesPage.css */
+
+.my-activities-container {
+    padding-top: 1rem;
+}
+
+.view-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 0.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.view-switcher .btn.active {
+    background-color: var(--primary-blue);
+    color: white;
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary-blue);
+}
+
+.view-switcher .btn {
+    flex: 1;
+    white-space: nowrap;
+}
+
+.page-section {
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .view-switcher {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+    .view-switcher .btn {
+        width: 100%;
+    }
+}
