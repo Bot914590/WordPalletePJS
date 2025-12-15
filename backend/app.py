@@ -1,7 +1,10 @@
+import jwt  
+from datetime import datetime, timedelta
 import os
 import argparse
 import json
-from datetime import datetime
+import jwt
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 from flask import Flask, request, jsonify, abort, render_template_string
@@ -20,6 +23,20 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key") 
 db = SQLAlchemy(app)
 
+# JWT настройки
+JWT_SECRET = os.environ.get("JWT_SECRET", "your-super-secret-key-change-this-in-production")
+JWT_EXPIRATION = timedelta(hours=24)
+JWT_SECRET = "your-super-secret-key-change-this-in-production"  # Секретный ключ
+
+@staticmethod 
+def generate_token(user):
+    payload = {
+        "user_id": user.id,
+        "exp": datetime.utcnow() + timedelta(hours=24)
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+    return token
+
 # -----------------------------------------------------
 # Models
 # -----------------------------------------------------
@@ -29,6 +46,8 @@ class Account(db.Model):
     #owner_name = db.Column(db.String(120), nullable=False)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+
+    
 
     # Хеширование
     def set_password(self, password):
@@ -45,6 +64,31 @@ class Account(db.Model):
     #        "owner_name": self.owner_name,
             "username": self.username
         }
+
+# -----------------------------------------------------
+# JWT функции
+# -----------------------------------------------------
+def generate_token(user_id):
+    """Генерация JWT токена для пользователя"""
+    payload = {
+        'user_id': user_id,
+        'exp': datetime.utcnow() + JWT_EXPIRATION,
+        'iat': datetime.utcnow()
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+    return token
+
+def verify_token(token):
+    """Проверка JWT токена"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        return payload['user_id']
+    except jwt.ExpiredSignatureError:
+        return None  # Токен истек
+    except jwt.InvalidTokenError:
+        return None  # Невалидный токен
+
+
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -131,9 +175,11 @@ def register():
         return jsonify({
             "error": f"Ошибка при создании аккаунта: {str(e)}"
         }), 500
-    
+
 @app.route('/api/login', methods=['POST'])
 def login():
+    
+
     """Аутентификация пользователя"""
     try:
         data = request.get_json()
@@ -161,10 +207,11 @@ def login():
             }), 401
         
         # Успешная аутентификация
+        token = generate_token(user.id)
         return jsonify({
-            "message": "Вход выполнен успешно",
-            "user": user.to_dict(),
-            "token": "dummy-token-123"
+        "message": "Вход выполнен успешно",
+        "user": user.to_dict(),
+        "token": token
         }), 200
         
     except Exception as e:
@@ -186,9 +233,16 @@ def create_game():
                 "error": "game_type, game_name и game_content обязательны"
             }), 400
         
-        # В реальном приложении здесь должна быть проверка токена
-        # Для простоты используем заглушку user_id = 1
-        user_id = 1
+        # Получить токен из заголовка
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Токен не предоставлен"}), 401
+        
+        token = auth_header.split(' ')[1]  # Убираем 'Bearer '
+        user_id = verify_token(token)  # Проверяем токен
+        
+        if not user_id:
+            return jsonify({"error": "Недействительный токен"}), 401
         
         # Создаем новую игру
         new_game = Game(
@@ -216,9 +270,16 @@ def create_game():
 def get_user_games():
     """Получение игр пользователя"""
     try:
-        # В реальном приложении здесь должна быть проверка токена
-        # Для простоты используем заглушку user_id = 1
-        user_id = 1
+        # Получить токен из заголовка
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Токен не предоставлен"}), 401
+        
+        token = auth_header.split(' ')[1]  # Убираем 'Bearer '
+        user_id = verify_token(token)  # Проверяем токен
+        
+        if not user_id:
+            return jsonify({"error": "Недействительный токен"}), 401
         
         games = Game.query.filter_by(user_id=user_id).all()
         
@@ -235,9 +296,22 @@ def get_user_games():
 def get_game(game_id):
     """Получение конкретной игры"""
     try:
+        # Получить токен из заголовка
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Токен не предоставлен"}), 401
+        
+        token = auth_header.split(' ')[1]  # Убираем 'Bearer '
+        user_id = verify_token(token)  # Проверяем токен
+        
+        if not user_id:
+            return jsonify({"error": "Недействительный токен"}), 401
+        
         game = Game.query.get_or_404(game_id)
         
-        # В реальном приложении здесь должна быть проверка, что пользователь имеет право доступа к этой игре
+        # Проверяем, что пользователь имеет право доступа к этой игре
+        if game.user_id != user_id:
+            return jsonify({"error": "Нет доступа к этой игре"}), 403
         
         return jsonify({
             "game": game.to_dict()
@@ -252,9 +326,22 @@ def get_game(game_id):
 def delete_game(game_id):
     """Удаление игры"""
     try:
+        # Получить токен из заголовка
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Токен не предоставлен"}), 401
+        
+        token = auth_header.split(' ')[1]  # Убираем 'Bearer '
+        user_id = verify_token(token)  # Проверяем токен
+        
+        if not user_id:
+            return jsonify({"error": "Недействительный токен"}), 401
+        
         game = Game.query.get_or_404(game_id)
         
-        # В реальном приложении здесь должна быть проверка, что пользователь имеет право удалить эту игру
+        # Проверяем, что пользователь имеет право удалить эту игру
+        if game.user_id != user_id:
+            return jsonify({"error": "Нет прав для удаления этой игры"}), 403
         
         db.session.delete(game)
         db.session.commit()
