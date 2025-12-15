@@ -1,0 +1,23 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+__pycache__/
+*.pyc
+.env
+.env.local
+
+# Сборки
+/dist
+/build
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Операционные системы
+.DS_Store
+Thumbs.db
