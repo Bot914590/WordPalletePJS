@@ -4,6 +4,33 @@ import gameService from '../services/gameService';
 import MainLayout from '../components/layout/MainLayout';
 import './GamePlayPage.css';
 
+const MatchGame = ({ gameData }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const { game_name, game_content } = gameData;
+  const [items, setItems] = useState(game_content && JSON.parse(game_content).items 
+  ? JSON.parse(game_content).items : []);
+
+  const defaultPalette = [
+    "#b3e5fc", // Light Blue
+    "#81d4fa", // Cerulean
+    "#4fc3f7", // Sky Blue
+    "#29b6f6", // Deep Sky Blue
+    "#03a9f4", // Blue
+    "#039be5", // Dark Blue
+    "#0288d1", // Midnight Blue
+    "#0277bd", // Prussian Blue
+    "#01579b", // Navy Blue
+    "#002171"  // Darker Navy
+  ];
+
+};
+
+// ##################################################################################
+
+// ---------------------------------------------
+// кОМПОНЕНТ ОТРИСОВКИ КОЛЕСА
+// ----------------------------------------------
 const WheelGame = ({ gameData }) => {
   const navigate = useNavigate();
   const { game_name, game_content } = gameData;
@@ -15,7 +42,7 @@ const WheelGame = ({ gameData }) => {
     setOriginalItems(items);
   }, []);
 
-  const textPos = { x: 0, y: 0 };
+  //const textPos = { x: 0, y: 0 };
   const [rotationDeg, setRotationDeg] = useState(0);
   const [resultLabel, setResultLabel] = useState("Нажмите 'Крутить'");
   const [lastSpunIndex, setLastSpunIndex] = useState(null);
@@ -266,7 +293,9 @@ const WheelGame = ({ gameData }) => {
   );
 };
 
-
+// ---------------------------------------------
+// ГЛАВНЫЙ компонент
+// ----------------------------------------------
 function GamePlayPage() {
   const { gameId } = useParams();
   const navigate = useNavigate();

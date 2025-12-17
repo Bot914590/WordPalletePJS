@@ -41,7 +41,9 @@ const gameService = {
         }
     },
 
+    // ---------------------------------------------
     // Специализированный метод для сохранения колеса
+    // ----------------------------------------------
     saveWheelGame: async (gameName, wheelItems) => {
         try {
             const response = await api.post('/games', {
@@ -57,7 +59,28 @@ const gameService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+
+    // ----------------------------------------------
+    // Специализированный метод для сохранения игры совпадений
+    // ----------------------------------------------
+    saveMatchGame: async (gameName, matchItems) => {
+        try {
+            const response = await api.post('/games', {
+                game_type: 'match',
+                game_name: gameName,
+                game_content: {
+                    items: matchItems,
+                    // Дополнительные настройки соревнования можно добавить здесь
+                    
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+    
 };
 
 export default gameService;

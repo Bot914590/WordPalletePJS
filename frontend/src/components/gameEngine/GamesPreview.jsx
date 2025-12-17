@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate
+import { data, useNavigate } from 'react-router-dom'; // Импортируем useNavigate
 import { useAuth } from '../../context/AuthContext';
 import gameService from "../../services/gameService";
 // import WheelGamePreview from '../../img/WheelGamePreview.jpg'; // Убираем импорт изображения
@@ -46,6 +46,19 @@ function GamesPreview() {
     
     const handlePlayGame = (gameId) => {
         navigate(`/play/${gameId}`); // Переход на страницу игры
+    };
+
+    // ---------------------------------------------
+    // Функция удаления игры
+    // ----------------------------------------------
+    const deleteGame = (gameId) => {
+        gameService.deleteGame(gameId)
+            .then(() => {
+                loadGames();
+            })
+            .catch(error => {
+                console.error('Ошибка при удалении игры:', error);
+            });
     };
     
     if (loading) {
@@ -118,11 +131,7 @@ function GamesPreview() {
                                 </button>
                                 <button 
                                     className="btn btn-outline btn-sm delete-btn"
-                                    onClick={() => {
-                                        if (window.confirm('Удалить эту игру?')) {
-                                            console.log('Удалить:', game.id);
-                                        }
-                                    }}
+                                    onClick={() => {deleteGame(game.id)}}
                                 >
                                     Удалить
                                 </button>

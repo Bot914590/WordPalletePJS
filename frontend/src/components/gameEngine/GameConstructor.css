@@ -42,6 +42,31 @@
     margin-bottom: 1rem;
 }
 
+.word-list {
+    list-style: none;
+    padding: 10px;
+}
+
+.word-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--background-light);
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.word-item-match {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--background-light);
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
 /* Wheel Game Designer */
 .wheel-game-designer {
     padding: 2rem;

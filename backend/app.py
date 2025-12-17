@@ -64,7 +64,29 @@ class Account(db.Model):
     #        "owner_name": self.owner_name,
             "username": self.username
         }
+    
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+    game_type = db.Column(db.String(50), nullable=False)
+    game_name = db.Column(db.String(200), nullable=False)
+    game_content = db.Column(db.Text, nullable=False)  # JSON строка с данными игры
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # Связь с пользователем
+    user = db.relationship('Account', backref=db.backref('games', lazy=True))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "game_type": self.game_type,
+            "game_name": self.game_name,
+            "game_content": self.game_content,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
 # -----------------------------------------------------
 # JWT функции
 # -----------------------------------------------------
@@ -90,28 +112,7 @@ def verify_token(token):
 
 
 
-class Game(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
-    game_type = db.Column(db.String(50), nullable=False)
-    game_name = db.Column(db.String(200), nullable=False)
-    game_content = db.Column(db.Text, nullable=False)  # JSON строка с данными игры
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Связь с пользователем
-    user = db.relationship('Account', backref=db.backref('games', lazy=True))
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "game_type": self.game_type,
-            "game_name": self.game_name,
-            "game_content": self.game_content,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
-        }
 
 # -----------------------------------------------------
 # API endpoints

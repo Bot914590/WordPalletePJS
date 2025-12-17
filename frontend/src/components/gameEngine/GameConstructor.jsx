@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import gameService from '../../services/gameService';
 import './GameConstructor.css';
 
@@ -10,11 +10,20 @@ function GameConstructor() {
   
   // Слова для колеса в режиме конструктора
   const [wheelWords, setWheelWords] = useState([
-    { id: 1, text: "Вариант 1" },
-    { id: 2, text: "Вариант 2" },
-    { id: 3, text: "Вариант 3" },
+    { id: 1, text: "Science" },
+    { id: 2, text: "Math" },
+    { id: 3, text: "literature " },
   ]);
   const [newWordInput, setNewWordInput] = useState('');
+
+  const [matchWords, setMatchWords] = useState([
+    { id: 1, textWithPlaceholder: "Science about numbers is ", correctAnswer: "Math" },
+    { id: 2, textWithPlaceholder: "Наука о живых огранизмах это", correctAnswer: "биология" },
+    { id: 3, textWithPlaceholder: "Наука о числах это", correctAnswer: "Математика" },
+  ]);
+  const [newMatchWordInputFirst, setNewMatchWordInputFirst] = useState('');
+  const [newMatchWordInputSecond, setNewMatchWordInputSecond] = useState('');
+
 
   const handleGameNaming = (event) => {
     setGameName(event.target.value);
@@ -26,9 +35,21 @@ function GameConstructor() {
     setWheelWords([...wheelWords, { id: newId, text: newWordInput.trim() }]);
     setNewWordInput('');
   };
+  const handleADDtextWithPlaceholder = () => {
+    if (newMatchWordInputFirst.trim() === '' || newMatchWordInputSecond.trim() === '') return;
+    const newId = matchWords.length > 0 ? Math.max(...matchWords.map(w => w.id)) + 1 : 1;
+    const newTextWithPlaceholder = newMatchWordInputFirst.trim();
+    const newCorrectAnswer = newMatchWordInputSecond.trim();
+    setMatchWords([...matchWords, { id: newId, textWithPlaceholder: newTextWithPlaceholder, correctAnswer: newCorrectAnswer }]);
+    setNewMatchWordInputFirst('');
+    setNewMatchWordInputSecond('');
+  };
 
   const handleDeleteWord = (id) => {
     setWheelWords(wheelWords.filter(word => word.id !== id));
+  };
+  const handleDeleteMatchWord = (id) => {
+    setMatchWords(matchWords.filter(word => word.id !== id));
   };
 
   const handleSaveGame = async () => {
@@ -42,10 +63,16 @@ function GameConstructor() {
       return;
     }
 
+    if (gameType === 'match' && matchWords.length === 0) {
+      setSaveMessage('Добавьте хотя бы одно слово для совпадения');
+      return;
+    }
+
     setIsSaving(true);
     setSaveMessage('');
 
-    try {
+    if (gameType === 'wheel') {
+      try {
       // Преобразуем wheelWords в формат wheelItems (для сохранения в БД)
       const wheelItemsForSave = wheelWords.map((word, index) => ({
         wordId: word.id,
@@ -62,9 +89,27 @@ function GameConstructor() {
     } finally {
       setIsSaving(false);
     }
+  } else if (gameType === 'match') {
+    try {
+      // Преобразуем matchWords в формат matchItems (для сохранения в БД)
+      const matchItemsForSave = matchWords.map((word, index) => ({
+        wordId: word.id,
+        answer: word.textWithPlaceholder,
+        correctAnswer: word.correctAnswer,
+        textPosition: { x: 0, y: 0 },
+      }));
+      await gameService.saveMatchGame(gameName, matchItemsForSave);
+      setSaveMessage('Игра успешно сохранена!');
+    } catch (error) {
+      console.error('Ошибка при сохранении игры:', error);
+      setSaveMessage('Ошибка при сохранении игры');
+    } finally {
+      setIsSaving(false);
+    }
+    }
   };
-
-  function ConstructorEngine({ gameName, gameType, wheelWords, setNewWordInput, handleAddWord, handleDeleteWord, newWordInput }) {
+  function ConstructorEngine({ gameName, gameType, wheelWords, 
+    setNewWordInput, handleAddWord, handleDeleteWord, newWordInput,newMatchWordInput, setNewMatchWordInput }) {
     if (gameType === 'wheel') {
       return (
         <div className="wheel-game-editor card">
@@ -93,7 +138,7 @@ function GameConstructor() {
               wheelWords.map(word => (
                 <div key={word.id} className="word-item">
                   <span>{word.text}</span>
-                  <button onClick={() => handleDeleteWord(word.id)} className="btn btn-danger btn-sm">
+                  <button onClick={() => handleDeleteWord(word.id)} className="btn ">
                     Удалить
                   </button>
                 </div>
@@ -104,9 +149,46 @@ function GameConstructor() {
       );
     } else if (gameType === 'match') {
       return (
-        <div className="game-type-placeholder card">
-          <h3>Игра на совпадение: {gameName || 'Без названия'}</h3>
-          <p>Функционал игры на совпадение скоро появится!</p>
+        <div className="wheel-game-editor card">
+          <h2 className="game-constructor-subtitle">Настройте вариантов совпадения</h2>
+          <div className="input-group">
+            <input
+              type="text"
+              value={newMatchWordInputFirst}
+              onChange={(e) => setNewMatchWordInputFirst(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddWord(); }}
+              placeholder="Введите "
+            />
+            <input
+              type="text"
+              value={newMatchWordInputSecond}
+              onChange={(e) => setNewMatchWordInputSecond(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddWord(); }}
+              placeholder="Введите "
+            />
+            <button 
+              onClick={handleADDtextWithPlaceholder} 
+              className="btn btn-primary"
+            >
+              Добавить
+            </button>
+          </div>
+          <div className="word-list">
+            {matchWords.length === 0 ? (
+              <p className="text-muted">Добавьте варианты для совпадения.</p>
+            ) : (
+              matchWords.map(word => (
+                <div key={word.id} className="word-item-match">
+                  <span>{word.textWithPlaceholder}</span>
+                  <span>{word.correctAnswer}</span>
+                  
+                  <button onClick={() => handleDeleteMatchWord(word.id)} className="btn ">
+                    Удалить
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       );
     } else if (gameType === 'quiz') {
@@ -166,7 +248,16 @@ function GameConstructor() {
         setNewWordInput,
         handleAddWord,
         handleDeleteWord,
-        newWordInput
+        newWordInput,
+        newMatchWordInputFirst, 
+        setNewMatchWordInputFirst,
+        newMatchWordInputSecond,
+        setNewMatchWordInputSecond,
+        matchWords,
+        setMatchWords,
+        handleADDtextWithPlaceholder,
+        handleSaveGame,
+        saveMessage,
       })}
 
       <div className="d-flex justify-content-center mt-4">
@@ -187,6 +278,6 @@ function GameConstructor() {
       )}
     </div>
   );
-}
+};
 
 export default GameConstructor;
