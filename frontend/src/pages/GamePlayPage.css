@@ -16,112 +16,190 @@
     color: var(--text-dark);
 }
 
-.wheel-play-area {
+/* Стили для игры с перетаскиванием */
+.match-game-container {
     background: var(--card-bg);
     border-radius: 12px;
     box-shadow: var(--shadow-hover);
     padding: 2rem;
-    text-align: center;
     max-width: 900px;
     width: 100%;
     margin: auto;
 }
 
-.wheel-play-area h1 {
+.match-game-container h1 {
     color: var(--primary-blue);
     font-size: 2.5rem;
     margin-bottom: 2rem;
+    text-align: center;
 }
 
-.wheel-controls {
+.answers-section {
+    margin-bottom: 3rem;
+}
+
+.answers-section h3 {
+    color: var(--text-dark);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.answers-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    min-height: 80px;
+    padding: 1rem;
+    background-color: var(--background-blue);
+    border-radius: 8px;
+    border: 2px dashed var(--secondary-blue);
+    transition: all 0.3s ease;
+}
+
+.answers-grid.dragging-over {
+    background-color: var(--light-blue);
+    border-color: var(--primary-blue);
+}
+
+.answer-card {
+    padding: 1rem 1.5rem;
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 8px;
+    cursor: grab;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.answer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.answer-card.dragging {
+    transform: rotate(5deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.questions-section h3 {
+    color: var(--text-dark);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.questions-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 1.5rem;
-    margin-bottom: 2rem;
 }
 
-.wheel-controls .checkbox-label {
+.question-item {
     display: flex;
     align-items: center;
-    font-size: 1rem;
-    color: var(--text-light);
-    cursor: pointer;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: var(--background-blue);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
 }
 
-.wheel-controls .checkbox-label input[type="checkbox"] {
-    margin-right: 0.5rem;
-    width: 20px;
-    height: 20px;
-    accent-color: var(--primary-blue);
+.question-item.drag-over {
+    background-color: var(--light-blue);
+    border-color: var(--primary-blue);
 }
 
-.wheel-controls .btn {
-    padding: 0.8rem 2.5rem;
+.question-item.correct {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.question-item.incorrect {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+}
+
+.question-text {
+    flex: 1;
     font-size: 1.1rem;
-    min-width: 200px;
+    font-weight: 600;
+    color: var(--text-dark);
 }
 
-.wheel-display {
+.drop-zone {
+    min-width: 200px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--secondary-blue);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.drop-zone.filled {
+    border-style: solid;
+    border-color: var(--primary-blue);
+    background-color: white;
+}
+
+.placeholder {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.dropped-answer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: grab;
+}
+
+.result-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.action-buttons {
     display: flex;
     justify-content: center;
-    align-items: center;
-    position: relative;
-    margin: 2rem 0;
-}
-
-.wheel-display svg {
-    display: block;
-    /* Центрируем колесо визуально */
-    position: relative;
-}
-
-.wheel-display svg path {
-    stroke: rgba(255, 255, 255, 0.7); /* Белая обводка между секторами */
-    stroke-width: 1px;
-}
-
-.wheel-display svg text {
-    font-family: 'Arial', sans-serif; /* Более читабельный шрифт */
-    font-weight: bold;
-    fill: var(--text-dark); /* Цвет текста */
-}
-
-.wheel-result {
+    gap: 1rem;
     margin-top: 2rem;
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--primary-blue);
+    flex-wrap: wrap;
 }
 
-/* Placeholder для других типов игр */
-.game-play-placeholder {
-    padding: 3rem;
-    text-align: center;
-    color: var(--text-light);
-    font-size: 1.2rem;
-    background-color: var(--card-bg);
+.action-buttons .btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    min-width: 180px;
+}
+
+.results-summary {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: var(--background-blue);
     border-radius: 8px;
-    box-shadow: var(--shadow);
-    max-width: 600px;
-    margin: 2rem auto;
+    text-align: center;
 }
 
-@media (max-width: 768px) {
-    .wheel-play-area h1 {
-        font-size: 2rem;
-    }
-    .wheel-controls .btn {
-        width: 100%;
-        min-width: unset;
-    }
-    .wheel-display svg {
-        width: 90vw; /* Занимает 90% ширины viewport */
-        height: 90vw;
-    }
+.results-summary h4 {
+    color: var(--primary-blue);
+    margin-bottom: 0.5rem;
 }
 
-/* GamePlayPage.css */
+.results-summary p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
 
 /* Общий контейнер, который будет занимать весь экран (для полноэкранного режима) */
 .game-play-fullscreen {
@@ -276,21 +354,57 @@
 }
 
 @media (max-width: 768px) {
+    .match-game-container {
+        padding: 1rem;
+    }
+    
+    .match-game-container h1 {
+        font-size: 2rem;
+    }
+    
+    .question-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .drop-zone {
+        min-width: unset;
+    }
+    
+    .answers-grid {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    
     .wheel-play-area h1 {
         font-size: 2rem;
     }
+    
     .wheel-game-controls {
         flex-direction: column;
         gap: 0.8rem;
     }
+    
     .wheel-game-controls .btn {
         width: 100%;
         min-width: unset;
     }
+    
     .wheel-display svg {
         width: 80vw; /* Занимает 80% ширины viewport */
         height: 80vw;
     }
+    
     .exit-btn {
         top: 0.5rem;
         left: 0.5rem;

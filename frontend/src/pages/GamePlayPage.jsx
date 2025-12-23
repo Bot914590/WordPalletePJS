@@ -5,24 +5,146 @@ import MainLayout from '../components/layout/MainLayout';
 import './GamePlayPage.css';
 
 const MatchGame = ({ gameData }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
+  //parsing into game_content
   const { game_name, game_content } = gameData;
   const [items, setItems] = useState(game_content && JSON.parse(game_content).items 
   ? JSON.parse(game_content).items : []);
 
-  const defaultPalette = [
-    "#b3e5fc", // Light Blue
-    "#81d4fa", // Cerulean
-    "#4fc3f7", // Sky Blue
-    "#29b6f6", // Deep Sky Blue
-    "#03a9f4", // Blue
-    "#039be5", // Dark Blue
-    "#0288d1", // Midnight Blue
-    "#0277bd", // Prussian Blue
-    "#01579b", // Navy Blue
-    "#002171"  // Darker Navy
-  ];
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [matchedAnswers, setMatchedAnswers] = useState({});
+  const [showResult, setShowResult] = useState(false);
+  const [usedAnswers, setUsedAnswers] = useState(new Set()); // Какие ответы уже использованы
+
+  const handleDragStart = (e, item) => {
+    
+    setDraggedItem(item);
+    e.dataTransfer.effectAllowed = 'move'
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetQuestion) => {
+    e.preventDefault();
+    
+    if (draggedItem) {
+      setMatchedAnswers(prev => {
+        const newMatchedAnswers = { ...prev };
+        
+        // Если в этой зоне уже есть ответ, возвращаем его в верхнюю часть
+        if (newMatchedAnswers[targetQuestion.wordId]) {
+          setUsedAnswers(prevUsed => {
+            const newUsed = new Set(prevUsed);
+            newUsed.delete(newMatchedAnswers[targetQuestion.wordId]);
+            return newUsed;
+          });
+        }
+        
+        // Добавляем новое сопоставление
+        newMatchedAnswers[targetQuestion.wordId] = draggedItem.wordId;
+        
+        // Отмечаем ответ как использованный
+        setUsedAnswers(prevUsed => new Set([...prevUsed, draggedItem.wordId]));
+        
+        return newMatchedAnswers;
+      });
+    }
+    
+    setDraggedItem(null);
+  };
+  // проверка ответов(находим неверные ответы)
+  const uncorAns = () => {
+    const correctAnswers = items.filter(item => item.isCorrect).map(item => item.wordId);
+    const userAnswers = Object.values(matchedAnswers);
+    const uncorrectAnswers = correctAnswers.filter(Element => !userAnswers.includes(Element))
+    return uncorrectAnswers;
+  };
+  const handleCheckResults = () => {
+    setShowResult(true);
+  };
+  const isCorrectMatch = (questionId, answerId) => {
+    // Отладочная информация
+    console.log('Проверка сопоставления:', { questionId, answerId, result: questionId === answerId });
+    // Правильно, если ID вопроса равен ID ответа
+    return questionId === answerId;
+  };
+
+  // Показываем только неиспользованные ответы в верхней части
+  const availableAnswers = items.filter(item => !usedAnswers.has(item.wordId));
+
+  
+
+  return(
+    <div className="match-game-container">
+      <h1>{game_name}</h1>
+      
+      {/* Верхняя часть - правильные ответы для перетаскивания */}
+      <div className="answers-section">
+        <h3>Перетащите ответы:</h3>
+        <div className="answers-grid">
+          {availableAnswers.map(item => (
+            <div
+              key={item.wordId}
+              className={`answer-card ${draggedItem?.wordId === item.wordId ? 'dragging' : ''}`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, item)}
+            >
+              <span className="answer-text">{item.correctAnswer}</span>
+            </div>
+          ))}
+          {availableAnswers.length === 0 && (
+            <p className="text-muted">Все ответы использованы</p>
+          )}
+        </div>
+      </div>
+      
+      {/* Нижняя часть - вопросы для заполнения */}
+      <div className="questions-section">
+        <h3>Сопоставьте с вопросами:</h3>
+        <div className="questions-list">
+          {items.map(item => (
+            <div
+              key={item.wordId}
+              className={`question-item ${showResult && matchedAnswers[item.wordId] ? (isCorrectMatch(item.wordId, matchedAnswers[item.wordId]) ? 'correct' : 'incorrect') : ''}`}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, item)}
+            >
+              <div className="question-text">
+                {item.answer}
+              </div>
+              <div className={`drop-zone ${matchedAnswers[item.wordId] ? 'filled' : ''}`}>
+                {matchedAnswers[item.wordId] ? (
+                  <span className="dropped-answer">
+                    {items.find(i => i.wordId === matchedAnswers[item.wordId])?.correctAnswer}
+                    {/* ПОКАЗЫВАЕМ РЕЗУЛЬТАТ В НИЖНЕЙ ЧАСТИ */}
+                    {showResult && (
+                      <span className="result-icon">
+                        {isCorrectMatch(item.wordId, matchedAnswers[item.wordId]) ? '✓' : '✗'}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="placeholder">
+                    Перетащите сюда ответ
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Кнопка проверки результатов */}
+      <div className="action-buttons">
+        <button onClick={handleCheckResults} className="btn btn-primary">
+          Проверить результаты
+        </button>
+      </div>
+
+    </div>
+  );
 
 };
 
@@ -346,7 +468,12 @@ function GamePlayPage() {
         </div>
       );
     case 'match':
-      return <MainLayout><div className="game-play-placeholder">Игра на совпадение скоро появится!</div></MainLayout>;
+      return (
+        <div className="game-play-fullscreen">
+          <button onClick={handleExitFullscreen} className="btn btn-secondary exit-btn">↩️ Выйти</button>
+          <MatchGame gameData={game} />
+        </div>
+      );
     case 'quiz':
       return <MainLayout><div className="m-auto card p-4"><div className="game-play-placeholder">Викторина скоро появится!</div></div></MainLayout>;
     default:

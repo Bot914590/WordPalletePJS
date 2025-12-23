@@ -181,3 +181,150 @@
         height: 300px;
     }
 }
+
+.match-game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.answers-section {
+  margin-bottom: 30px;
+}
+
+.answers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.answer-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: grab;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.answer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.answer-card.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.answer-card.correct {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  animation: pulse 0.5s ease-in-out;
+}
+
+.answer-card.incorrect {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  animation: shake 0.5s ease-in-out;
+}
+
+.answer-text {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.checkmark, .cross {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.checkmark {
+  color: #4CAF50;
+}
+
+.cross {
+  color: #f44336;
+}
+
+.questions-list {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+}
+
+.question-item {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px dashed #ccc;
+  transition: all 0.3s ease;
+}
+
+.question-item.drag-over {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.question-text {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.drop-zone {
+  min-height: 50px;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.drop-zone.filled {
+  border-style: solid;
+  border-color: #4CAF50;
+  background: #f1f8e9;
+}
+
+.placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.dropped-answer {
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.action-buttons {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.results-summary {
+  background: #e8f5e8;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
