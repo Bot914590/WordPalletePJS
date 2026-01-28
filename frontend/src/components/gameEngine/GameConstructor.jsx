@@ -2,6 +2,10 @@ import { useState } from "react";
 import gameService from '../../services/gameService';
 //import './GameConstructor.css';
 
+
+// Updated on $(29.01.26)
+
+
 function GameConstructor() {
   const [gameType, setGameType] = useState('wheel');
   const [gameName, setGameName] = useState('');

@@ -4,7 +4,7 @@ import gameService from '../services/gameService';
 import MainLayout from '../components/layout/MainLayout';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import './GamePlayPage.css';
-
+// Updated on $(29.01.26)
 const AnagramaGame = ({ gameData }) => {
   const { game_name, game_content } = gameData;
   const { gameId } = useParams();
