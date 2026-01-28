@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { data, useNavigate } from 'react-router-dom'; // Импортируем useNavigate
+import { data, useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../../context/AuthContext';
 import gameService from "../../services/gameService";
-// import WheelGamePreview from '../../img/WheelGamePreview.jpg'; // Убираем импорт изображения
+
 import './GamesPreview.css';
 
 function GamesPreview() {

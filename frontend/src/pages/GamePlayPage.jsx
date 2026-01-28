@@ -2,9 +2,290 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import gameService from '../services/gameService';
 import MainLayout from '../components/layout/MainLayout';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import './GamePlayPage.css';
 
+const AnagramaGame = ({ gameData }) => {
+  const { game_name, game_content } = gameData;
+  const { gameId } = useParams();
+  const navigate = useNavigate();
+  
+  // Состояние для текущего слова и прогресса
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [items, setItems] = useState([]);
+  const [isSolved, setIsSolved] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [words, setWords] = useState([]);
+
+  // Функция для перемешивания букв
+  const shuffleWord = (word) => {
+    const letters = word.split('');
+    for (let i = letters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [letters[i], letters[j]] = [letters[j], letters[i]];
+    }
+    return letters;
+  };
+
+  // Инициализация игры
+  useEffect(() => {
+    if (game_content) {
+      try {
+        const parsed = JSON.parse(game_content);
+        if (parsed.items && Array.isArray(parsed.items) && parsed.items.length > 0) {
+          // Нормализуем слова - убедимся, что это массив строк
+          const normalizedWords = parsed.items.map(item => 
+            typeof item === 'string' ? item : (item.word || item.text || item.content || String(item))
+          );
+          
+          setWords(normalizedWords);
+          setCurrentIndex(0); // ИСПРАВЛЕНИЕ: сбрасываем индекс при загрузке
+          
+          // Инициализируем первое слово
+          const firstWord = normalizedWords[0];
+          const shuffled = shuffleWord(firstWord);
+          setItems(shuffled.map((letter, index) => ({
+            id: `letter-${index}`,
+            content: letter
+          })));
+        }
+      } catch (e) {
+        console.error('Ошибка парсинга game_content:', e);
+      }
+    }
+  }, [game_content]);
+
+  // Обработка перехода к следующему слову
+  useEffect(() => {
+    // ИСПРАВЛЕНИЕ: проверяем что words загружены и индекс валидный
+    if (words.length === 0) return;
+    
+    if (currentIndex > 0 && currentIndex < words.length) {
+      const currentWord = words[currentIndex];
+      
+      // Генерируем анаграмму для следующего слова
+      const shuffled = shuffleWord(currentWord);
+      setItems(shuffled.map((letter, index) => ({
+        id: `letter-${currentIndex}-${index}`, // ИСПРАВЛЕНИЕ: уникальные ID для каждого слова
+        content: letter
+      })));
+      setIsSolved(false);
+    } else if (currentIndex >= words.length) {
+      setGameOver(true);
+    }
+  }, [currentIndex, words]);
+
+  // Получаем текущее слово и информацию о прогрессе
+  const currentWord = words[currentIndex] || '';
+  const currentWordIndex = currentIndex + 1;
+  const totalWords = words.length;
+
+  // Обработчик завершения перетаскивания
+  const onDragEnd = (result) => {
+    // Отмена, если нет назначения или позиция не изменилась
+    if (!result.destination || result.destination.index === result.source.index) {
+      return;
+    }
+
+    // Переупорядочивание элементов
+    const reorderedItems = Array.from(items);
+    const [removed] = reorderedItems.splice(result.source.index, 1);
+    reorderedItems.splice(result.destination.index, 0, removed);
+    
+    setItems(reorderedItems);
+    
+    // Проверяем, собрано ли правильное слово
+    const currentOrder = reorderedItems.map(item => item.content).join('');
+    if (currentOrder === currentWord) {
+      setIsSolved(true);
+      // Задержка для визуального подтверждения
+      setTimeout(() => {
+        if (currentIndex < words.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+        } else {
+          setGameOver(true);
+        }
+      }, 500);
+    }
+  };
+
+  // ИСПРАВЛЕНИЕ: функция для сброса текущего слова
+  const handleReset = () => {
+    if (!currentWord) return;
+    
+    const shuffled = shuffleWord(currentWord);
+    setItems(shuffled.map((letter, index) => ({
+      id: `letter-${currentIndex}-${index}`, // ИСПРАВЛЕНИЕ: используем текущий индекс для уникальности
+      content: letter
+    })));
+    setIsSolved(false);
+  };
+
+  // Стили
+  const grid = 8;
+  
+  const getItemStyle = (isDragging, draggableStyle) => ({
+    userSelect: 'none',
+    padding: `${grid * 1.5}px ${grid * 2}px`,
+    margin: `0 ${grid}px 0 0`,
+    borderRadius: '6px',
+    fontSize: '1.4rem',
+    fontWeight: 'bold',
+    color: 'white',
+    minWidth: '45px',
+    height: '60px',
+    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: isDragging ? '#4CAF50' : '#2196F3',
+    boxShadow: isDragging 
+      ? '0 4px 8px rgba(0,0,0,0.3)' 
+      : '0 2px 4px rgba(0,0,0,0.2)',
+    ...draggableStyle,
+  });
+
+  const getListStyle = (isDraggingOver) => ({
+    background: isDraggingOver ? '#E3F2FD' : '#F5F5F5',
+    display: 'flex',
+    padding: grid,
+    borderRadius: '8px',
+    border: `2px dashed ${isDraggingOver ? '#2196F3' : '#bdbdbd'}`,
+    minHeight: '80px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  });
+
+  // ИСПРАВЛЕНИЕ: добавляем проверку на загрузку данных
+  if (!words.length && !gameOver) {
+    return (
+      <MainLayout>
+        <div className="game-play-page">
+          <div className="game-header">
+            <h1>{game_name || 'Игра "Анаграмма"'}</h1>
+          </div>
+          <div className="game-loading">
+            <p>Загрузка игры...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (gameOver) {
+    return (
+      <MainLayout>
+        <div className="game-play-page">
+          <div className="game-header">
+            <h1>{game_name || 'Игра "Анаграмма"'}</h1>
+          </div>
+          
+          <div className="game-complete">
+            <h2>Поздравляем! 🎉</h2>
+            <p>Вы успешно завершили все уровни!</p>
+            <button 
+              className="btn-primary" 
+              onClick={() => navigate('/games')}
+            >
+              Вернуться к списку игр
+            </button>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  return (
+    <MainLayout>
+      <div className="game-play-page">
+        <div className="game-header">
+          <h1>{game_name || 'Игра "Анаграмма"'}</h1>
+          <div className="game-progress">
+            Слово {currentWordIndex} из {totalWords}
+          </div>
+        </div>
+        
+        <div className="game-instructions">
+          <p>Перетащите буквы в правильном порядке, чтобы составить слово</p>
+        </div>
+        
+        {currentWord && (
+          <div className="current-word">
+            {currentWord.split('').map((letter, index) => (
+              <span 
+                key={`correct-${currentIndex}-${index}`} // ИСПРАВЛЕНИЕ: уникальные ключи
+                className={`letter ${isSolved ? 'solved' : ''}`}
+              >
+                {letter}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable 
+            droppableId="anagram-droppable" 
+            direction="horizontal"
+          >
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                style={getListStyle(snapshot.isDraggingOver)}
+                {...provided.droppableProps}
+                className="droppable-container"
+              >
+                {items.map((item, index) => (
+                  <Draggable 
+                    key={item.id} 
+                    draggableId={item.id} 
+                    index={index}
+                  >
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={getItemStyle(
+                          snapshot.isDragging,
+                          provided.draggableProps.style
+                        )}
+                        className="draggable-item"
+                      >
+                        {item.content}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+        
+        <div className="game-actions">
+          <button 
+            className="btn-reset" 
+            onClick={handleReset} // ИСПРАВЛЕНИЕ: используем отдельную функцию
+            aria-label="Сбросить текущее слово"
+          >
+            Сбросить
+          </button>
+          
+          <button 
+            className="btn-primary" 
+            onClick={() => navigate('/games')}
+          >
+            Вернуться к списку игр
+          </button>
+        </div>
+      </div>
+    </MainLayout>
+  );
+};
+
 const MatchGame = ({ gameData }) => {
+
   //parsing into game_content
   const { game_name, game_content } = gameData;
   const [items, setItems] = useState(game_content && JSON.parse(game_content).items 
@@ -472,6 +753,13 @@ function GamePlayPage() {
         <div className="game-play-fullscreen">
           <button onClick={handleExitFullscreen} className="btn btn-secondary exit-btn">↩️ Выйти</button>
           <MatchGame gameData={game} />
+        </div>
+      );
+    case 'anagrama':
+      return (
+        <div className="game-play-fullscreen">
+          <button onClick={handleExitFullscreen} className="btn btn-secondary exit-btn">↩️ Выйти</button>
+          <AnagramaGame gameData={game} />
         </div>
       );
     case 'quiz':

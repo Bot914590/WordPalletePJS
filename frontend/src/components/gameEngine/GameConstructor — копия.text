@@ -1,6 +1,6 @@
 import { useState } from "react";
 import gameService from '../../services/gameService';
-//import './GameConstructor.css';
+import './GameConstructor.css';
 
 function GameConstructor() {
   const [gameType, setGameType] = useState('wheel');
@@ -24,12 +24,6 @@ function GameConstructor() {
   const [newMatchWordInputFirst, setNewMatchWordInputFirst] = useState('');
   const [newMatchWordInputSecond, setNewMatchWordInputSecond] = useState('');
 
-  const [anagramaWords, setAnagramaWord] = useState([
-    {id: 1 , content: "Hello"},
-    {id: 2 , content: "Time"},
-    {id: 3 , content: "Horse"},
-  ]);
-  const [newAnagramaWordInput, setNewAnagramaWordInput] = useState('');
 
   const handleGameNaming = (event) => {
     setGameName(event.target.value);
@@ -58,17 +52,6 @@ function GameConstructor() {
     setMatchWords(matchWords.filter(word => word.id !== id));
   };
 
-  const handleAddAnagramaWord = () => {
-    if (newAnagramaWordInput.trim() === '') return; 
-    const newId = anagramaWords.length > 0 ? Math.max(...anagramaWords.map(w => w.id)) + 1 : 1;
-    setAnagramaWord([...anagramaWords,{id: newId , content: newAnagramaWordInput.trim()}] );
-
-  };
-
-  const handleDeleteAnagramaWord = (id) => {
-    setAnagramaWord(anagramaWords.filter(word => word.id !== id));
-  };
-
   const handleSaveGame = async () => {
     if (!gameName.trim()) {
       setSaveMessage('Пожалуйста, введите название игры');
@@ -82,11 +65,6 @@ function GameConstructor() {
 
     if (gameType === 'match' && matchWords.length === 0) {
       setSaveMessage('Добавьте хотя бы одно слово для совпадения');
-      return;
-    }
-
-    if (gameType === 'anagrama' && anagramaWords.length === 0) {
-      setSaveMessage('Добавьте хотя бы одно слово');
       return;
     }
 
@@ -128,20 +106,10 @@ function GameConstructor() {
     } finally {
       setIsSaving(false);
     }
-    } else if (gameType === 'anagrama'){
-      try {
-        await gameService.saveAnagramaGame(gameName, anagramaWords);
-        setSaveMessage('Игра успешно сохранена!');
-      } catch (error) {
-        console.error('Ошибка при сохранении игры:', error);
-        setSaveMessage('Ошибка при сохранении игры');
-      } finally {
-        setIsSaving(false);
-      }
     }
   };
   function ConstructorEngine({ gameName, gameType, wheelWords, 
-    setNewWordInput, handleAddWord, handleDeleteWord, newWordInput,newMatchWordInput, setNewMatchWordInput, newAnagramaWordInput, setNewAnagramaWordInput }) {
+    setNewWordInput, handleAddWord, handleDeleteWord, newWordInput,newMatchWordInput, setNewMatchWordInput }) {
     if (gameType === 'wheel') {
       return (
         <div className="wheel-game-editor card">
@@ -223,41 +191,11 @@ function GameConstructor() {
           </div>
         </div>
       );
-    } else if (gameType === 'anagrama') {
+    } else if (gameType === 'quiz') {
       return (
-        <div className="wheel-game-editor card">
-          <h2 className="game-constructor-subtitle">Настройте слова для анаграммы</h2>
-
-          <div className="input-group mb-3">
-            <input
-              type="text"
-              value={newAnagramaWordInput}
-              onChange={(e) => setNewAnagramaWordInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleAddAnagramaWord(); }}
-              placeholder="Введите слово для анаграммы"
-            />
-            <button
-              onClick={handleAddAnagramaWord}
-              className="btn btn-primary"
-            >
-              Добавить
-            </button>
-          </div>
-
-          <div className="word-list">
-            {anagramaWords.length === 0 ? (
-              <p className="text-muted">Добавьте слова для анаграммы.</p>
-            ) : (
-              anagramaWords.map(word => (
-                <div key={word.id} className="word-item">
-                  <span>{word.content}</span>
-                  <button onClick={() => handleDeleteAnagramaWord(word.id)} className="btn ">
-                    Удалить
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
+        <div className="game-type-placeholder card">
+          <h3>Игра-викторина: {gameName || 'Без названия'}</h3>
+          <p>Функционал викторины скоро появится!</p>
         </div>
       );
     }
@@ -296,22 +234,22 @@ function GameConstructor() {
         </button>
         <button
           type="button"
-          onClick={() => setGameType('anagrama')}
-          className={`btn ${gameType === 'anagrama' ? 'btn-primary' : 'btn-outline'}`}
+          onClick={() => setGameType('quiz')}
+          className={`btn ${gameType === 'quiz' ? 'btn-primary' : 'btn-outline'}`}
         >
           Викторина
         </button>
       </div>
 
       {ConstructorEngine({
-        gameName,
+        gameName, 
         gameType,
         wheelWords,
         setNewWordInput,
         handleAddWord,
         handleDeleteWord,
         newWordInput,
-        newMatchWordInputFirst,
+        newMatchWordInputFirst, 
         setNewMatchWordInputFirst,
         newMatchWordInputSecond,
         setNewMatchWordInputSecond,
@@ -320,8 +258,6 @@ function GameConstructor() {
         handleADDtextWithPlaceholder,
         handleSaveGame,
         saveMessage,
-        newAnagramaWordInput,
-        setNewAnagramaWordInput,
       })}
 
       <div className="d-flex justify-content-center mt-4">

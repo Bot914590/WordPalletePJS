@@ -71,7 +71,7 @@ const gameService = {
                 game_name: gameName,
                 game_content: {
                     items: matchItems,
-                    // Дополнительные настройки соревнования можно добавить здесь
+                    // Дополнительные настройки можно добавить здесь
                     
                 }
             });
@@ -81,6 +81,21 @@ const gameService = {
         }
     },
     
+    saveAnagramaGame: async (gameName, anagramaItems) => {
+        try {
+            const response = await api.post('/games', {
+                game_type: 'anagrama',
+                game_name: gameName,
+                game_content: {
+                    items: anagramaItems,
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
 };
 
 export default gameService;
